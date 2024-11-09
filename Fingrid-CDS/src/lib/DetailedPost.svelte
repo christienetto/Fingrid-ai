@@ -71,10 +71,10 @@
                     <div class="w-2/3 mx-8  rounded-l-xl">
                         <div class="text-5xl pt-8 font-semibold"> {title}</div>
                         <div class="text-2xl w-fit pt-4 rounded-full">Posted By: {author}</div>
-                        <div class="text-2xl font-normal py-3">Date: {date}</div>
-                        <div class="bg-blue-500 w-fit py-3 px-3 text-2xl rounded-full">{tag}</div>
-                        <div class="py-3    "></div>
-                        <div class="flex pt-8 pb-6 rounded-full justify-center text-xl font-bold  bg-zinc-400">
+                        <div class="text-2xl font-normal py-4">Date: {date}</div>
+                        <div class="bg-blue-500 w-fit py-3 px-3 text-2xl rounded-full font-semibold">{tag}</div>
+                        <div class="py-7   "></div>
+                        <div class="flex pt-4 pb-4 rounded-full justify-center text-xl font-bold  bg-zinc-400">
                             <!-- Upvote button with fixed-width number -->
                             <div class="flex items-center gap-1 cursor-pointer w-1/3 justify-center" on:click={handleUpvote}>
                                 <ArrowBigUp class={`${userVote === 'up' ? 'fill-green-500' : ''}`} />

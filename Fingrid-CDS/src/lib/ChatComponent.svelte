@@ -1,25 +1,22 @@
-<!-- Save this as src/lib/ChatComponent.svelte -->
 <script>
   let messages = [];
   let inputText = '';
   let isLoading = false;
   let chatBox;
-  let previousMessageCount = 0;  // Add this line at the top with other variables
+  let previousMessageCount = 0;
 
-  
   async function handleSubmit() {
     if (!inputText.trim() || isLoading) return;
-    
+
     isLoading = true;
     const userMessage = inputText;
     inputText = '';
-    
-    // Add user message immediately
+
     messages = [...messages, {
       type: 'user',
       content: userMessage
     }];
-    
+
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -28,17 +25,16 @@
         },
         body: JSON.stringify({ message: userMessage })
       });
-      
+
       if (!response.ok) throw new Error('Failed to get response');
-      
+
       const data = await response.json();
-      
-      // Add AI response
+
       messages = [...messages, {
         type: 'assistant',
         content: data.response
       }];
-      
+
     } catch (error) {
       messages = [...messages, {
         type: 'error',
@@ -48,7 +44,7 @@
       isLoading = false;
     }
   }
-    // Modified scroll logic
+
   $: if (chatBox && messages.length > previousMessageCount) {
     previousMessageCount = messages.length;
     setTimeout(() => {
@@ -57,7 +53,7 @@
   }
 </script>
 
-<div class="chat-wrapper">
+<div class="">
   <div 
     class="messages" 
     bind:this={chatBox}
@@ -72,12 +68,12 @@
         </div>
       </div>
     {/each}
-    
+
     {#if isLoading}
       <div class="loading">AI is thinking...</div>
     {/if}
   </div>
-  
+
   <div class="input-area">
     <textarea
       bind:value={inputText}
@@ -101,98 +97,120 @@
 
 <style>
   .chat-wrapper {
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    background: white;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #52525b;
+    border-radius: 1rem;
+    background-color: #f8fafc;
     width: 100%;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
   }
-  
+
   .messages {
-    height: 400px;
-    padding: 1rem;
-    overflow-y: auto;
-    background: #f8fafc;
-  }
-  
-  .message {
-    margin-bottom: 0.75rem;
-    padding: 0.75rem;
-    border-radius: 0.375rem;
-    max-width: 80%;
-  }
-  
-  .message.user {
-    background: #e3f2fd;
-    margin-left: auto;
-  }
-  
-  .message.assistant {
-    background: white;
-    border: 1px solid #e2e8f0;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center-aligns messages container */
+  padding: 1rem;
+  overflow-y: auto;
+  background: #ffffff;
+  border-bottom: 2px solid #52525b;
+  color: #334155;
+}
+
+.message {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  max-width: 60%; /* Set max width for a centered appearance */
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.message.user {
+  background: #e0f2fe;
+  align-self: flex-end; /* Aligns user messages to the right */
+  color: #1d4ed8;
+}
+
+.message.assistant {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #1f2937;
+  align-self: flex-start; /* Aligns AI messages to the left */
+}
+
+
   .message.error {
     background: #fee2e2;
     color: #dc2626;
+    border: 1px solid #f87171;
   }
-  
+
   .message-label {
     font-size: 0.875rem;
-    font-weight: 500;
-    margin-bottom: 0.25rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 0.5rem;
     display: block;
   }
-  
+
   .message-content {
     white-space: pre-wrap;
     word-break: break-word;
   }
-  
+
   .input-area {
     padding: 1rem;
-    background: white;
-    border-top: 1px solid #e2e8f0;
+    background: #ffffff;
+    border-top: 2px solid #52525b;
     display: flex;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 0.75rem;
   }
-  
+
   textarea {
     flex: 1;
     min-height: 2.5rem;
     padding: 0.5rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.375rem;
+    border: 2px solid #52525b;
+    border-radius: 0.5rem;
     resize: vertical;
+    font-size: 1rem;
+    color: #334155;
+    font-weight: 500;
   }
-  
+
   textarea:disabled {
-    background: #f1f5f9;
+    background: #f3f4f6;
+    color: #9ca3af;
   }
-  
+
   button {
     padding: 0.5rem 1rem;
     background: #2563eb;
-    color: white;
+    color: #ffffff;
     border: none;
-    border-radius: 0.375rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
     cursor: pointer;
-    font-weight: 500;
+    transition: background-color 0.2s ease-in-out;
   }
-  
+
   button:hover:not(:disabled) {
-    background: #1d4ed8;
+    background: #1e40af;
   }
-  
+
   button:disabled {
     background: #94a3b8;
     cursor: not-allowed;
   }
-  
+
   .loading {
     text-align: center;
-    color: #64748b;
+    color: #6b7280;
     padding: 0.5rem;
     font-style: italic;
+    font-weight: 500;
   }
 </style>

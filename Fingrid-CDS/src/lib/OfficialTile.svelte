@@ -69,14 +69,14 @@
 <!-- Link is wrapped around the whole tile, allowing navigation on click -->
 <a href="/post-timeline" class="w-full h-[500px] mx-auto flex font-inter py-6 cursor-pointer">
     <div class="bg-white w-full h-full rounded-l-xl border-2 border-zinc-600">
-        <div class="mx-8">
-            <div class="text-5xl pt-8 font-semibold"> {title}</div>
+        <div class="mx-8 w-[700px] text-wrap">
+            <div class="text-5xl pt-8 font-semibold leading-tight"> {title}</div>
             <div class="py-4 flex text-xl font-semibold gap-7">
-                <div class="w-fit py-3 rounded-full">{author}</div>
+                <div class="w-fit py-3 rounded-full text-red-600">{author}</div>
                 <div class="py-3 px-3 font-normal"> {date}</div>
                 <div class="bg-green-500 w-fit py-3 px-3 rounded-full">{tag}</div>
             </div>
-            <div class="text-2xl">{description}</div>
+            <div class="text-xl text-justify">{description}</div>
         </div>
     </div>
 

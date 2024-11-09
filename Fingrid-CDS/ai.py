@@ -28,9 +28,9 @@ class PostAnalysisSystem:
 
         self.tech_chatbot_ai = Agent(
             role='Technical Support Chatbot',
-            goal="Provide helpful responses to user questions about the analyzed post",
-            backstory="You are a knowledgeable technical support assistant who can answer questions about the post's content and provide relevant guidance",
-            description="Responds to user queries about the post with accurate and helpful information",
+            goal="Provide helpful responses to user questions",
+            backstory="You are a knowledgeable technical support assistant who can answer questions and provide relevant guidance",
+            description="Responds to user queries with accurate and helpful information",
             verbose=False,
             allow_delegation=False,
             llm=self.openai_llm,
@@ -57,7 +57,7 @@ class PostAnalysisSystem:
         self.current_post = post_content
         
         analyze_task = Task(
-            description=f"""Analyze this post and provide:
+            description=f"""Analyze this question and give realistic answers:
             1. CATEGORIES: Identify 1-3 most relevant categories from the following options (or suggest better ones if needed):
                - Technical Issue/Bug
                - Feature Request
@@ -112,34 +112,48 @@ class PostAnalysisSystem:
 
     def chat_with_ai(self, user_message):
         """
-        Send a message to the AI about the analyzed post and get a response.
-        
+        Send a message to the AI and get a response. Works both as a general technical
+        chatbot and can reference post context if available.
+
         Args:
-            user_message (str): The user's question about the post
-            
+            user_message (str): The user's technical question or query
+
         Returns:
             str: The AI's response
         """
-        if not self.current_post:
-            return "Error: Please analyze a post first before asking questions."
-            
         if not user_message:
             return "Error: Please provide a question."
-            
-        chat_task = Task(
-            description=f"""Based on this context, provide a helpful response to the user's question.
+
+        # Prepare task description based on whether we have post context
+        if self.current_post:
+            task_description = f"""Based on your technical expertise, provide a helpful response to the user's question.
+            If relevant to the query, you may reference this context:
             Original Post: {self.current_post}
             Post Summary: {self.current_summary}
-            User Question: {user_message}""",
+
+            User Question: {user_message}
+
+            Provide a detailed technical response that directly addresses the user's question. If the post context
+            is relevant, incorporate it into your response. If not, provide a general technical answer."""
+        else:
+            task_description = f"""Based on your technical expertise, provide a helpful response to the user's question:
+
+            User Question: {user_message}
+
+            Provide a detailed technical response that directly addresses the user's question, drawing from your
+            knowledge of energy infrastructure, API integrations, system architecture, and technical best practices."""
+
+        chat_task = Task(
+            description=task_description,
             agent=self.tech_chatbot_ai,
-            expected_output="Detailed and relevant response to the user's question about the post"
+            expected_output="Detailed and relevant technical response to the user's question"
         )
-        
+
         chat_crew = Crew(
             agents=[self.tech_chatbot_ai],
             tasks=[chat_task]
         )
-        
+
         response = chat_crew.kickoff()
         return str(response)
 

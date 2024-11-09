@@ -4,17 +4,18 @@
     import { ArrowRight } from 'lucide-svelte';
     import { Minus } from 'lucide-svelte';
     import Comment from '$lib/Comment.svelte'; // Import the Comment component
+    import ChatComponent from '$lib/ChatComponent.svelte';
   
     let scrollContainer: HTMLDivElement | null = null;
   
     // Define the unique comments for each tile
     const allComments = [
-      { id: 1, author: 'John Doe', text: 'This is a comment for Tile 1', parentId: null, children: [] },
+      { id: 1, author: 'Daniel Chris', text: 'I am concerned about the service life of such a battery. What materials are you considering for the development of such a system?', parentId: null, children: [] },
       { id: 2, author: 'Jane Smith', text: 'This is a reply to John on Tile 1', parentId: 1, children: [] },
-      { id: 3, author: 'Mark Taylor', text: 'This is a comment for Tile 2', parentId: null, children: [] },
+      { id: 3, author: 'Mark Taylor', text: "Is there any more information about the parameters of the battery available?", parentId: null, children: [] },
       { id: 4, author: 'Alice Brown', text: 'This is a reply to Mark on Tile 2', parentId: 3, children: [] },
-      { id: 5, author: 'Paul Green', text: 'This is a comment for Tile 3', parentId: null, children: [] },
-      { id: 6, author: 'Emma White', text: 'This is a reply to Paul on Tile 3', parentId: 5, children: [] }
+      { id: 5, author: 'Paul Green', text: 'Is there any possibility of the project moving ahead of the schedule?', parentId: null, children: [] },
+      { id: 6, author: 'Emma White', text: 'How will the resources used affect the environment in the Kuopio area?', parentId: 5, children: [] }
     ];
   
     // Store the comments for the active tile
@@ -22,11 +23,11 @@
     // Store the current tile's production tag
     let activeTileTag = '';
   
-    // Store the tiles array
+    // Store the tiles array with unique dates
     const tiles = [
-      { title: "Official Post 1", tag: "Idea Stage", upvotes: 20, downvotes: 3, comments: 4, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit." },
-      { title: "Official Post 2", tag: "Planning Stage", upvotes: 15, downvotes: 2, comments: 10, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit." },
-      { title: "Official Post 3", tag: "Development Stage", upvotes: 15, downvotes: 2, comments: 10, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit." }
+      { title: "Fingrid’s New Battery Storage Project in Eastern Finland", tag: "Idea Stage", date: "09.11.2024", upvotes: 20, downvotes: 3, comments: 4, description: "Fingrid identified the issue of grid instability due to intermittent renewable energy sources, which can lead to supply fluctuations, especially in rural and remote regions like Eastern Finland. Battery storage was evaluated as a potential solution to store excess renewable energy and release it during peak demand periods, effectively acting as a “buffer” for the grid." },
+      { title: "Fingrid’s New Battery Storage Project in Eastern Finland", tag: "Planning Stage", date: "15.01.2025", upvotes: 15, downvotes: 2, comments: 10, description: "Kuopio was chosen as the project site due to its proximity to renewable energy sources and its need for improved grid stability. Engineers and energy experts developed specifications for a 50 MW battery storage system, selecting technology that would provide optimal capacity, reliability, and lifespan." },
+      { title: "Fingrid’s New Battery Storage Project in Eastern Finland", tag: "Development Stage", date: "10.06.2025", upvotes: 22, downvotes: 1, comments: 2, description: "Groundbreaking occurs, and the project site in Kuopio is prepared. This includes building the foundational structures, installing battery containers, and setting up necessary equipment and safety systems. Battery modules and related equipment are installed according to the design specifications. Electrical connections, cooling systems, and monitoring sensors are put in place to ensure safe and efficient operation." }
     ];
   
     // This will keep track of which tile is currently visible
@@ -58,7 +59,7 @@
     function loadCommentsBasedOnScroll() {
       if (scrollContainer) {
         const scrollPosition = scrollContainer.scrollLeft;
-        const tileWidth = scrollContainer.offsetWidth / 2; // Width of the scroll container
+        const tileWidth = scrollContainer.offsetWidth /1.8; // Width of the scroll container
         const totalWidth = scrollContainer.scrollWidth; // Total width of all tiles combined
         const tileIndex = Math.floor(scrollPosition / tileWidth); // Determine which tile is in view
   
@@ -112,7 +113,7 @@
               title={tile.title}
               author="FINGRID"
               tag={tile.tag}
-              date="09.11.2024"
+              date={tile.date} 
               description={tile.description}
               image="grid.png"
               upvotes={tile.upvotes}
@@ -142,8 +143,16 @@
         </div>
         </div>
     </div>
+    <div class="py-1"></div>
+    <div class="bg-zinc-300 rounded-xl mx-24 h-auto py-8">
+        <div class=" bg-white p-4 font-inter mx-8 rounded-xl   ">
+        <h2 class="text-2xl font-bold">AI Assistant</h2>
+        <ChatComponent/>
+        </div>
+    </div>
+
+    
   </section>
-  
   
   <style>
     /* Hide scrollbar on the horizontal scrolling container */
@@ -159,4 +168,3 @@
       padding-top: 20px;
     }
   </style>
-  

@@ -70,7 +70,7 @@
                 <div class="py-3 px-3 font-normal"> {date}</div>
                 <div class="bg-blue-500 w-fit py-3 px-3 rounded-full">{tag}</div>
             </div>
-            <div class="text-2xl">{description}</div>
+            <div class="text-xl">{description}</div>
         </div>
     </div>
 

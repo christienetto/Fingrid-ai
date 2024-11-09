@@ -29,10 +29,10 @@ class ChatMessage(BaseModel):
 async def chat(message: ChatMessage):
     try:
         logger.info(f"Received message: {message.message}")
-        response = chatbot.analyze_post(message.message)
+        response = chatbot.chat_with_ai(message.message)
         # analyse post has the current info: response["summary"] and response["categories"]
-        logger.info(f"Sending response: {response['summary']}")
-        return {"response": response["summary"]}
+        logger.info(f"Sending response: {response}")
+        return {"response": response}
     except Exception as e:
         logger.error(f"Error processing message: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
