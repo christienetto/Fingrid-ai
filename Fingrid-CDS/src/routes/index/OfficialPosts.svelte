@@ -9,7 +9,7 @@
   
   <section class="bg-red-600 w-screen h-screen pt-24">
   <div class="bg-zinc-300 rounded-xl mx-24 h-auto py-8 ">
-    <div class="">
+    <div class="mx-8">
       <div class="">
       
         
