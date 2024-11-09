@@ -32,7 +32,8 @@
 
     let userVote = null; // 'up' for upvote, 'down' for downvote, null for no vote
 
-    function handleUpvote() {
+    function handleUpvote(event) {
+        event.stopPropagation(); // Prevent the click from triggering the <a> tag navigation
         if (userVote === 'up') {
             upvotes -= 1;
             userVote = null;
@@ -45,7 +46,8 @@
         }
     }
 
-    function handleDownvote() {
+    function handleDownvote(event) {
+        event.stopPropagation(); // Prevent the click from triggering the <a> tag navigation
         if (userVote === 'down') {
             downvotes -= 1;
             userVote = null;
@@ -59,9 +61,7 @@
     }
 </script>
 
-
-<div class="w-11/12 h-[500px] mx-auto flex font-inter py-6 b ">
-
+<a href="/single-post" class="w-11/12 h-[500px] mx-auto flex font-inter py-6 cursor-pointer">
     <div class="bg-white w-full h-full rounded-l-xl border-2 border-zinc-600">
         <div class="mx-8">
             <div class="text-5xl pt-8 font-semibold"> {title}</div>
@@ -98,7 +98,7 @@
             </div>            
         </div>
     </div>
-</div>
+</a>
 
 <style>
     .fill-green-500 {
