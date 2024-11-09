@@ -61,7 +61,7 @@
     }
 </script>
 
-<a href="/single-post" class="w-11/12 h-[500px] mx-auto flex font-inter py-6 cursor-pointer">
+<a href="/single-post" class="w-full h-[500px] mx-auto flex font-inter py-6 cursor-pointer px-8">
     <div class="bg-white w-full h-full rounded-l-xl border-2 border-zinc-600">
         <div class="mx-8">
             <div class="text-5xl pt-8 font-semibold"> {title}</div>
@@ -78,7 +78,7 @@
         <div class="h-full">
             <img src={image} class="h-full w-full object-cover rounded-tr-xl">
         </div>
-        <div class="flex pt-8 pb-6 mx-4 justify-center text-xl font-bold scale-125">
+        <div class="flex pt-8 pb-6 mx-4 justify-center text-xl font-bold scale-110">
             <!-- Upvote button with fixed-width number -->
             <div class="flex items-center gap-1 cursor-pointer w-1/3 justify-center" on:click={handleUpvote}>
                 <ArrowBigUp class={`${userVote === 'up' ? 'fill-green-500' : ''}`} />
