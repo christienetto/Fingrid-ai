@@ -98,7 +98,7 @@
     });
   </script>
   
-  <section class="bg-red-600 w-screen h-screen pt-24">
+  <section class="bg-red-600 w-screen h-full pt-24">
     <div class="bg-zinc-300 rounded-xl mx-24 h-auto py-8">
       <!-- Scrollable container with horizontal overflow and hidden scrollbar -->
       <div
@@ -130,15 +130,17 @@
         {/each}
       </div>
     </div>
-  
+    <div class="py-1"></div>
     <!-- Comment Section Below the Scrollable Tiles -->
-    <div class="mt-8 bg-white p-4">
-      <h2 class="text-lg font-bold">Comments for {activeTileTag}</h2>
-      <div class="comment-section mt-4">
-        {#each activeComments as comment (comment.id)}
-          <Comment {comment} {addComment} />
-        {/each}
-      </div>
+    <div class="bg-zinc-300 rounded-xl mx-24 h-auto py-8">
+        <div class=" bg-white p-4 font-inter mx-8 rounded-xl   ">
+        <h2 class="text-2xl font-bold">Comments for {activeTileTag}</h2>
+        <div class="comment-section mt-4">
+            {#each activeComments as comment (comment.id)}
+            <Comment {comment} {addComment} />
+            {/each}
+        </div>
+        </div>
     </div>
   </section>
   
