@@ -9,174 +9,202 @@ os.environ["GROQ_API_KEY"] = 'gsk_1BRr9u3NkJ8WLPEPl3eZWGdyb3FYJQTLgTnYk4Vs0ZgrAI
 
 openai_llm = ChatGroq(api_key=os.environ.get("GROQ_API_KEY"), model="groq/llama-3.1-70b-versatile")
 
-poemCreatorAI = Agent(
-    role='Poetic Verse Creator',
-    goal="Create first two lines of a four-line poem based on user input, focusing on imagery and emotion",
-    backstory="You are a skilled poet who can transform any topic into evocative verse, specializing in creating opening lines that set the tone and theme",
-    description="Creates the first two lines of poems that capture the essence of any given topic",
+# Define the AI agents with updated goals
+postSummarizerAI = Agent(
+    role='Post Analyzer',
+    goal="Analyze posts to provide comprehensive summaries and categorize the post type",
+    backstory="""You are an expert at analyzing technical posts in an energy infrastructure platform context. 
+    You can identify key issues, technical details, and categorize posts into relevant business categories.""",
+    description="""Analyzes posts to provide:
+    1. Post categories (Technical Issue, Feature Request, Billing Query, Infrastructure Update, etc.)
+    2. Detailed summary of content
+    3. Technical and business context""",
     verbose=True,
     allow_delegation=False,
     llm=openai_llm,
 )
 
-poemFinisherAI = Agent(
-    role='Poem Concluder',
-    goal="Complete the four-line poem by adding two final lines that complement the opening verses",
-    backstory="You are a master of poetic closure, crafting perfect endings that bring depth and resolution to poems",
-    description="Creates the final two lines of poems, ensuring they connect thematically with the opening lines",
+techChatbotAI = Agent(
+    role='Technical Support Chatbot',
+    goal="Provide helpful responses to user questions about the analyzed post",
+    backstory="You are a knowledgeable technical support assistant who can answer questions about the post's content and provide relevant guidance",
+    description="Responds to user queries about the post with accurate and helpful information",
     verbose=False,
     allow_delegation=False,
     llm=openai_llm,
 )
 
-opening_lines_task = Task(
-    description="Create the first two lines of a poem based on the user's input. Focus on creating vivid imagery and establishing the poem's theme.",
-    agent=poemCreatorAI,
-    expected_output="First two lines of a poem about {input}",
-)
-
-closing_lines_task = Task(
-    description="Create the final two lines of the poem that complement and conclude the opening lines",
-    agent=poemFinisherAI,
-    expected_output="Complete four-line poem about {input}",
-)
-
-crew = Crew(
-    agents=[poemCreatorAI, poemFinisherAI], 
-    tasks=[opening_lines_task, closing_lines_task]
-)
-
-def functionality(question):    
-    while(True):
-        if question == "q":
-            return "Thank you for sharing poetic moments with me! ♥"
-        result = crew.kickoff(inputs={"input": question})
-        if "agent has" in str(result).lower():
-            return "The muse is silent today, please try again..."
-        return result
-
-class SimplifiedInterface:
+class PostAnalysisInterface:
     def __init__(self, master):
         self.master = master
-        master.title("Poetry Generation Interface")
-        master.geometry("800x600")
+        master.title("Post Analysis System")
+        master.geometry("1000x800")
         master.configure(bg='#f0f0f0')
-
-        self.is_recording = False
-        self.record_text_index = 0
         
         # Configure fonts
         self.title_font = tkfont.Font(family="Helvetica", size=14, weight="bold")
         self.label_font = tkfont.Font(family="Helvetica", size=11)
         self.text_font = tkfont.Font(family="Georgia", size=12)
+        self.category_font = tkfont.Font(family="Helvetica", size=10, weight="bold")
         
         self.create_widgets()
+        self.current_post = ""
+        self.current_summary = ""
+        self.current_categories = []
 
     def create_widgets(self):
-        # Title
-        title_label = ttk.Label(
-            self.master, 
-            text="AI Poetry Generator", 
-            font=self.title_font
-        )
-        title_label.pack(pady=(20, 10))
+        # Main container
+        main_container = ttk.PanedWindow(self.master, orient=tk.HORIZONTAL)
+        main_container.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        # Input Frame
-        input_frame = ttk.Frame(self.master, padding="10")
-        input_frame.pack(fill=tk.X, pady=(0, 10))
+        # Left panel for post input and summary
+        left_panel = ttk.Frame(main_container)
+        main_container.add(left_panel, weight=1)
 
-        input_label = ttk.Label(
-            input_frame, 
-            text="Enter your poetry theme:", 
-            font=self.label_font
-        )
-        input_label.pack(anchor=tk.W)
+        # Right panel for chat
+        right_panel = ttk.Frame(main_container)
+        main_container.add(right_panel, weight=1)
 
-        self.input_entry = tk.Text(
-            input_frame, 
-            wrap=tk.WORD, 
-            height=3, 
-            font=self.text_font
-        )
-        self.input_entry.pack(fill=tk.X, expand=True)
+        # Left panel contents
+        ttk.Label(left_panel, text="Paste Post Content:", font=self.label_font).pack(anchor=tk.W, pady=(0, 5))
+        self.post_input = tk.Text(left_panel, height=15, wrap=tk.WORD, font=self.text_font)
+        self.post_input.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
 
-        # Button Frame
-        button_frame = ttk.Frame(input_frame)
-        button_frame.pack(pady=(10, 0))
+        ttk.Button(left_panel, text="Analyze Post", command=self.analyze_post).pack(pady=(0, 10))
 
-        submit_button = ttk.Button(
-            button_frame, 
-            text="Generate Poem", 
-            command=self.on_submit
-        )
-        submit_button.pack(side=tk.LEFT, padx=(0, 10))
+        # Categories section
+        ttk.Label(left_panel, text="Post Categories:", font=self.label_font).pack(anchor=tk.W, pady=(0, 5))
+        self.categories_text = tk.Text(left_panel, height=2, wrap=tk.WORD, font=self.category_font, state="disabled")
+        self.categories_text.pack(fill=tk.X, pady=(0, 10))
 
-        self.record_button = ttk.Button(
-            button_frame, 
-            text="Record", 
-            command=self.toggle_recording
-        )
-        self.record_button.pack(side=tk.LEFT)
+        # Summary section
+        ttk.Label(left_panel, text="Post Summary:", font=self.label_font).pack(anchor=tk.W, pady=(0, 5))
+        self.summary_text = tk.Text(left_panel, height=10, wrap=tk.WORD, font=self.text_font, state="disabled")
+        self.summary_text.pack(fill=tk.BOTH, expand=True)
 
-        # Output Frame
-        output_frame = ttk.Frame(self.master, padding="10")
-        output_frame.pack(expand=True, fill=tk.BOTH)
+        # Right panel contents
+        ttk.Label(right_panel, text="Chat with AI about the Post:", font=self.label_font).pack(anchor=tk.W, pady=(0, 5))
+        
+        self.chat_history = tk.Text(right_panel, height=20, wrap=tk.WORD, font=self.text_font, state="disabled")
+        self.chat_history.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
 
-        output_label = ttk.Label(
-            output_frame, 
-            text="Generated Poetry:", 
-            font=self.label_font
-        )
-        output_label.pack(anchor=tk.W)
+        chat_input_frame = ttk.Frame(right_panel)
+        chat_input_frame.pack(fill=tk.X, pady=(0, 10))
 
-        self.output_text = tk.Text(
-            output_frame, 
-            wrap=tk.WORD, 
-            state="disabled", 
-            font=self.text_font,
-            padx=10,
-            pady=10
-        )
-        self.output_text.pack(expand=True, fill=tk.BOTH)
+        self.chat_input = tk.Text(chat_input_frame, height=3, wrap=tk.WORD, font=self.text_font)
+        self.chat_input.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-        text_scrollbar = ttk.Scrollbar(
-            output_frame, 
-            orient="vertical", 
-            command=self.output_text.yview
-        )
-        text_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.output_text.configure(yscrollcommand=text_scrollbar.set)
+        ttk.Button(chat_input_frame, text="Send", command=self.send_message).pack(side=tk.RIGHT, padx=(10, 0))
 
-    def on_submit(self):
-        input_text = self.input_entry.get("1.0", tk.END).strip()
-        if input_text:
-            output = functionality(input_text)
-            self.update_output(f"{output}\n\n")
-            self.input_entry.delete("1.0", tk.END)
+    def analyze_post(self):
+        post_content = self.post_input.get("1.0", tk.END).strip()
+        if post_content:
+            self.current_post = post_content
+            
+            # Create a specific task for analysis and categorization
+            analyze_task = Task(
+                description=f"""Analyze this post and provide:
+                1. CATEGORIES: Identify 1-3 most relevant categories from the following options (or suggest better ones if needed):
+                   - Technical Issue/Bug
+                   - Feature Request
+                   - Billing Query
+                   - Infrastructure Update
+                   - API Integration
+                   - Performance Issue
+                   - Security Concern
+                   - Contractual Change
+                   - Documentation Request
+                   - Service Degradation
+                
+                2. SUMMARY: Create a detailed summary that includes:
+                   - Main issue or topic being discussed
+                   - Company name (if mentioned)
+                   - Current infrastructure and technologies (if mentioned)
+                   - Any other relevant technical details
+                
+                Format the response with clear CATEGORIES: and SUMMARY: sections.
+                
+                Post content: {post_content}""",
+                agent=postSummarizerAI,
+                expected_output="Categorized and structured summary of the post"
+            )
+            
+            # Create a crew for analysis
+            analysis_crew = Crew(
+                agents=[postSummarizerAI],
+                tasks=[analyze_task]
+            )
+            
+            result = analysis_crew.kickoff()
+            
+            # Split the result into categories and summary
+            result_str = str(result)
+            categories_part = ""
+            summary_part = ""
+            
+            if "CATEGORIES:" in result_str and "SUMMARY:" in result_str:
+                parts = result_str.split("SUMMARY:")
+                categories_part = parts[0].replace("CATEGORIES:", "").strip()
+                summary_part = parts[1].strip()
+            else:
+                summary_part = result_str
+            
+            self.current_summary = summary_part
+            self.update_categories(categories_part)
+            self.update_summary(summary_part)
+            self.update_chat_history("System: Post analyzed. You can now ask questions about it.\n")
         else:
-            self.update_output("Please provide a theme for your poem.\n\n")
+            self.update_summary("Please paste a post to analyze.")
 
-    def update_output(self, text):
-        self.output_text.configure(state="normal")
-        self.output_text.insert("1.0", text)
-        self.output_text.configure(state="disabled")
-        self.output_text.see("1.0")
+    def update_categories(self, text):
+        self.categories_text.configure(state="normal")
+        self.categories_text.delete("1.0", tk.END)
+        self.categories_text.insert("1.0", text)
+        self.categories_text.configure(state="disabled")
 
-    def toggle_recording(self):
-        self.is_recording = not self.is_recording
-        if self.is_recording:
-            self.update_record_button_text()
+    def send_message(self):
+        message = self.chat_input.get("1.0", tk.END).strip()
+        if message and self.current_post:
+            self.update_chat_history(f"You: {message}\n")
+            
+            # Create a specific task for chat response
+            chat_task = Task(
+                description=f"""Based on this context, provide a helpful response to the user's question.
+                Original Post: {self.current_post}
+                Post Summary: {self.current_summary}
+                User Question: {message}""",
+                agent=techChatbotAI,
+                expected_output="Detailed and relevant response to the user's question about the post"
+            )
+            
+            # Create a crew for chat response
+            chat_crew = Crew(
+                agents=[techChatbotAI],
+                tasks=[chat_task]
+            )
+            
+            response = chat_crew.kickoff()
+            self.update_chat_history(f"AI: {response}\n")
+            self.chat_input.delete("1.0", tk.END)
         else:
-            self.record_button.config(text="Record")
+            if not self.current_post:
+                self.update_chat_history("System: Please analyze a post first before asking questions.\n")
+            else:
+                self.update_chat_history("System: Please enter a question.\n")
 
-    def update_record_button_text(self):
-        if self.is_recording:
-            texts = ["Recording", "Recording.", "Recording..", "Recording..."]
-            self.record_button.config(text=texts[self.record_text_index])
-            self.record_text_index = (self.record_text_index + 1) % len(texts)
-            self.master.after(500, self.update_record_button_text)
+    def update_summary(self, text):
+        self.summary_text.configure(state="normal")
+        self.summary_text.delete("1.0", tk.END)
+        self.summary_text.insert("1.0", text)
+        self.summary_text.configure(state="disabled")
+
+    def update_chat_history(self, text):
+        self.chat_history.configure(state="normal")
+        self.chat_history.insert(tk.END, text)
+        self.chat_history.configure(state="disabled")
+        self.chat_history.see(tk.END)
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = SimplifiedInterface(root)
+    app = PostAnalysisInterface(root)
     root.mainloop()
