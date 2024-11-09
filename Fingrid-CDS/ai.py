@@ -5,8 +5,8 @@ from langchain_groq import ChatGroq
 class PostAnalysisSystem:
     def __init__(self):
         # Set API key
-        os.environ["GROQ_API_KEY"] = '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'
-        self.api_key = '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'
+        os.environ["GROQ_API_KEY"] = 'PLEASE_INSERT_YOUR_GROQ_KEY_HERE'
+        self.api_key = 'PLEASE_INSERT_YOUR_GROQ_KEY_HERE'
         
         # Initialize LLM
         self.openai_llm = ChatGroq(api_key=self.api_key, model="groq/llama-3.1-70b-versatile")
