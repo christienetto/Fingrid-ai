@@ -1,7 +1,9 @@
 <script>
   import CommunityPosts from "../index/OfficialPosts.svelte";
     import DetailedPost from "../../lib/DetailedPost.svelte";
-    import SinglePost from "./SinglePost.svelte";
+  import PostTimeline from "./PostTimeline.svelte";
+  
 </script>
 
-<SinglePost/>
+
+<PostTimeline/>

@@ -1,5 +1,6 @@
 <script>
-  import CommunityPosts from "./index/CommunityPosts.svelte";
+  import OfficialPosts from "./index/OfficialPosts.svelte";
+import CommunityPosts from "./index/OfficialPosts.svelte";
 </script>
 
-<CommunityPosts />
+<OfficialPosts/>
